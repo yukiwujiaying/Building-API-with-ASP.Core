@@ -1,6 +1,7 @@
 ﻿using CityInfo.API.Models;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,21 +13,38 @@ namespace CityInfo.API.Controllers
     [Route("api/cities/{cityId}/pointsofinterest")]
     public class PointsOfInterestController : ControllerBase
     {
+        private readonly ILogger<PointsOfInterestController> _logger;
+
+        //by using ILogger<T> the logger will automatically use the type name as its category name
+        public PointsOfInterestController(ILogger<PointsOfInterestController> logger)
+        {
+            //check the logger isnt null
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
+
         [HttpGet("{id}")]
         public IActionResult GetPointsOfInterest(int cityId, int id)
         {
-            var city = CitiesDataStore.Current.Cities.FirstOrDefault(c => c.Id == cityId);
-            if (city == null)
+            try
             {
-                return NotFound();
+                var city = CitiesDataStore.Current.Cities.FirstOrDefault(c => c.Id == cityId);
+                
+                if (city == null)
+                {
+                    //log when the city isnt found
+                    //log in the debug output window
+                    _logger.LogInformation($"City with id {cityId} wasn't found when " + $"accessing points of interest.");
+                    return NotFound();
+                }
+
+               
+                return Ok(city.PointsOfInterest);
             }
-            // find point of interest
-            var pointOfInterest = city.PointsOfInterest.FirstOrDefault(c => c.Id == id);
-            if (pointOfInterest == null)
+            catch (Exception ex)
             {
-                return NotFound();
+                _logger.LogCritical($"Exception while getting points of interest for city with id {cityId}.", ex);
+                return StatusCode(500, "A problem happened while handling your request.");
             }
-            return Ok(pointOfInterest);
         }
 
         [HttpPost("{id}", Name="GetPointOfInterest")]
