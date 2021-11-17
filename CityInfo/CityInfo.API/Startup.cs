@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CityInfo.API.Servieces;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -22,15 +23,17 @@ namespace CityInfo.API
             {
                 o.OutputFormatters.Add(new XmlDataContractSerializerOutputFormatter());
             });
-                //.AddJsonOptions(o =>
-                //{
-                //    if (o.SerializerSettings.ContractResolver != null)
-                //    {
-                //        var castedResolver = o.SerializerSettings.ContractResolver
-                //                               as DefaultContractResolver;
-                //        castedResolver.NamingStrategy = null;
-                //    }
-                //});
+
+            //IMailService is the interface, localMailService is the implementation
+            //this told the container 
+            //whenever we inject an IMailService in our code, we want it to provide us with the LocalMailService
+#if DEBUG
+            //if running debug build, use localmailservice
+            services.AddTransient<IMailService, LocalMailService>();
+#else
+            //if running release build, use clouldmailservice
+            services.AddTransient<IMailService, CloudMailService>();
+#endif
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
