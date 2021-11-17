@@ -9,7 +9,7 @@ namespace CityInfo.API.Controllers
 {
     [ApiController]
     [Route("api/cities/{cityId}/pointsofinterest")]
-    public class PointsOfInterest : ControllerBase
+    public class PointsOfInterestController : ControllerBase
     {
         [HttpGet("{id}")]
         public IActionResult GetPointsOfInterest(int cityId, int id)
@@ -31,6 +31,18 @@ namespace CityInfo.API.Controllers
         [HttpPost("{id}", Name="GetPointOfInterest")]
         public IActionResult CreatePointOfInterest(int cityId, [FromBody]PointOfinterestForCreationDto pointOfInterest)
         {
+            if (pointOfInterest.Description == pointOfInterest.Name)
+            {
+                ModelState.AddModelError(
+                    "Description",
+                    "The provided description should be different from the name.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var city = CitiesDataStore.Current.Cities.FirstOrDefault(c => c.Id == cityId);
             if(city == null)
             {
