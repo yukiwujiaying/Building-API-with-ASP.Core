@@ -13,7 +13,6 @@
       "launchBrowser": true,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "connectionStrings:cityInfoDBConnectionString": "Server=(localdb)\\mssqllocaldb;Database=CityInfoDB;Trusted_Connection=True;"
       }
     },
     "CityInfo.API": {
