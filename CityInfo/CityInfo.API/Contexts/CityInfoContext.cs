@@ -17,7 +17,7 @@ namespace CityInfo.API.Contexts
         //this is the constructor that allow the config to use the onnection string
         public CityInfoContext(DbContextOptions<CityInfoContext> options):base(options)
         {
-            Database.EnsureCreated();
+            //Database.EnsureCreated();
         }
 
 
