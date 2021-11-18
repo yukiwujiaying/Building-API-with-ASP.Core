@@ -36,11 +36,36 @@ namespace CityInfo.API.Servieces
             return _context.PointOfInterests.Where(p => p.CityId == cityId && p.Id == pointOfInterestId).FirstOrDefault();
         }
 
-        public IEnumerable<PointOfInterest> GetPointOfInterestforCity(int cityId)
+        public IEnumerable<PointOfInterest> GetPointsOfInterestforCity(int cityId)
         {
             return _context.PointOfInterests.Where(p => p.CityId == cityId).ToList();
         }
+        public bool CityExists(int cityId)
+        {
+            return _context.Cities.Any(c => c.Id == cityId);
+        }
 
-        
+        public void AddPointOfInterestForCity(int cityId, PointOfInterest pointOfInterest)
+        {
+            var city = GetCity(cityId, false);
+            city.PointOfInterests.Add(pointOfInterest);
+        }
+
+        public void UpdatePointOfInterestForCity(int cityId, PointOfInterest pointOfInterest)
+        {
+
+        }
+
+        public void DeletePointOfInterest(PointOfInterest pointOfInterest)
+        {
+            _context.PointOfInterests.Remove(pointOfInterest);
+        }
+
+        public bool Save()
+        {
+            return (_context.SaveChanges() >= 0);
+        }
+
+
     }
 }
