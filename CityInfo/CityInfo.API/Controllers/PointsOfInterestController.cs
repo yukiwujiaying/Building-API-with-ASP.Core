@@ -1,4 +1,5 @@
-﻿using CityInfo.API.Models;
+﻿using AutoMapper;
+using CityInfo.API.Models;
 using CityInfo.API.Servieces;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -17,14 +18,16 @@ namespace CityInfo.API.Controllers
         private readonly ILogger<PointsOfInterestController> _logger;
         private readonly IMailService _mailService;
         private readonly ICityInfoRepository _cityInfoRepository;
+        private readonly IMapper _mapper;
 
         //by using ILogger<T> the logger will automatically use the type name as its category name
-        public PointsOfInterestController(ILogger<PointsOfInterestController> logger, IMailService mailService, ICityInfoRepository cityInfoRepository)
+        public PointsOfInterestController(ILogger<PointsOfInterestController> logger, IMailService mailService, ICityInfoRepository cityInfoRepository, IMapper mapper)
         {
             //check the logger isnt null
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _mailService = mailService ?? throw new ArgumentException(nameof(mailService));
             _cityInfoRepository = cityInfoRepository ?? throw new ArgumentException(nameof(cityInfoRepository));
+            _mapper = mapper ?? throw new ArgumentException(nameof(cityInfoRepository));
         }
 
         [HttpGet("{id}")]
@@ -40,18 +43,18 @@ namespace CityInfo.API.Controllers
                     return NotFound();
                 }
                 var pointsOfInterestForCity = _cityInfoRepository.GetPointsOfInterestforCity(cityId);
-                var pointsOfInterestForCityResults = new List<PointOfInterestDto>();
-                foreach (var poi in pointsOfInterestForCity)
-                {
-                    pointsOfInterestForCityResults.Add(new PointOfInterestDto()
-                    {
-                        Id = poi.Id,
-                        Description = poi.Description,
-                        Name = poi.Name
-                    });
-                }
+                //var pointsOfInterestForCityResults = new List<PointOfInterestDto>();
+                //foreach (var poi in pointsOfInterestForCity)
+                //{
+                //    pointsOfInterestForCityResults.Add(new PointOfInterestDto()
+                //    {
+                //        Id = poi.Id,
+                //        Description = poi.Description,
+                //        Name = poi.Name
+                //    });
+                //}
 
-                return Ok(pointsOfInterestForCityResults);
+                return Ok(_mapper.Map<IEnumerable<PointOfInterestDto>>(pointsOfInterestForCity));
             }
             catch (Exception ex)
             {
@@ -74,14 +77,7 @@ namespace CityInfo.API.Controllers
                 return NotFound();
             }
 
-            var pointOfInterestResult = new PointOfInterestDto()
-            {
-                Id = pointOfInterest.Id,
-                Name = pointOfInterest.Name,
-                Description = pointOfInterest.Description
-            };
-
-            return Ok(pointOfInterestResult);
+            return Ok(_mapper.Map<PointOfInterestDto>(pointOfInterest));
         }
 
         [HttpPost("{id}", Name="GetPointOfInterest")]
